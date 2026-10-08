@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://www.isoloom.com/schema/v1.json
+# Segfault Labyrinth (Google's 2022 security competition, by Google; a misc challenge) as an Isoloom spec:
+# send shellcode that finds the flag in a labyrinth of randomly mapped pages, under seccomp.
+# The challenge folder 2022/quals/misc-segfault-labyrinth of Google's challenge archive is vendored unchanged in app/ and built by its own Dockerfile.
+# `isoloom generate`, then `isoloom run docker`.
+version: 1
+name: google-ctf-2022-segfault-labyrinth
+
+networks:
+  lab: { cidr: 10.60.193.0/24, internet: false }
+
+machines:
+  challenge:
+    networks: { lab: 10 }
+    services: [{ port: 1337, name: challenge, publish: 1337 }]
+    resources: { cpus: 1, memory_mb: 512 }
+    privileged: true  # the image's setup script mounts /proc and nsjail creates namespaces
+    docker:
+      build: app/challenge
+
+checks:
+  - name: the challenge service answers
+    tcp: challenge:1337
+    wait: 120
+  - name: the labyrinth greets the player
+    script: checks/probe.sh
+    wait: 60
+
+message: |
+  Segfault Labyrinth (Google, 2022) answers at `nc localhost {{ machines.challenge.services.0.publish }}`.
+  Touching an unmapped page crashes: which allowed syscalls tell you whether an address is mapped?

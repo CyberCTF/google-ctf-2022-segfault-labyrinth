@@ -1,0 +1,57 @@
+{
+  "objectives": [
+    {
+      "key": "main",
+      "title": "Find the flag",
+      "prompt": "Send code that finds the flag in the labyrinth of mapped pages and prints it.",
+      "check": {
+        "evidence": "SECRET",
+        "format": "CTF{%s}"
+      },
+      "dev": "CTF{dev-google-ctf-2022-segfault-labyrinth}",
+      "hints": [
+        "Touching an unmapped page crashes, but a system call given a bad pointer just fails.",
+        "Read the seccomp filter: which allowed calls take a pointer?"
+      ],
+      "steps": [
+        {
+          "key": "filter",
+          "title": "Name the filter",
+          "prompt": "Which Linux kernel feature limits the system calls your code may make?",
+          "check": {
+            "answer": [
+              "seccomp",
+              "seccomp-bpf",
+              "seccomp bpf"
+            ]
+          }
+        },
+        {
+          "key": "errno",
+          "title": "Know the error",
+          "prompt": "Which errno does a system call return when given an unmapped buffer address?",
+          "check": {
+            "answer": [
+              "efault",
+              "-efault",
+              "bad address"
+            ]
+          }
+        },
+        {
+          "key": "input",
+          "title": "Know what you send",
+          "prompt": "What do you send to the service?",
+          "check": {
+            "answer": [
+              "shellcode",
+              "machine code",
+              "code",
+              "x86-64 shellcode"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
